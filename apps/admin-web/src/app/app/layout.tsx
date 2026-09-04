@@ -93,7 +93,8 @@ function getStoredThemePreference(): ThemePreference {
 function applyThemePreference(preference: ThemePreference) {
   const root = document.documentElement;
   const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const resolvedTheme = preference === 'system' ? (systemPrefersDark ? 'dark' : 'light') : preference;
+  const resolvedTheme =
+    preference === 'system' ? (systemPrefersDark ? 'dark' : 'light') : preference;
 
   root.classList.remove('light', 'dark');
   root.classList.add(resolvedTheme);
@@ -126,6 +127,7 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
   }, [routerPathname]);
 
   const pathname = pendingPath ?? routerPathname;
+  const isRoutePending = Boolean(pendingPath && pendingPath !== routerPathname);
 
   const handleNavClick = (e: React.MouseEvent<HTMLElement>) => {
     const anchor = (e.target as HTMLElement).closest('a');
@@ -149,7 +151,8 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
   };
 
   const { user, isPlatformAdmin, logout } = useAuth();
-  const ActiveThemeIcon = themeOptions.find((option) => option.value === themePreference)?.icon ?? Monitor;
+  const ActiveThemeIcon =
+    themeOptions.find((option) => option.value === themePreference)?.icon ?? Monitor;
 
   // Role detection
   const email = (user?.email || '').toLowerCase();
@@ -211,129 +214,144 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
   };
 
   // Structured Information Architecture by Domain
-  const allNavGroups: NavGroup[] = [
-    {
-      title: 'Overview',
-      items: [
-        { label: 'Command Center', href: '/app', icon: LayoutDashboard },
-        { label: 'Unified Search', href: '/app/search', icon: Search },
-      ],
-    },
-    {
-      title: 'Property & Communities',
-      items: [
-        { label: 'Communities Master', href: '/app/organizations', icon: Building2 },
-        { label: 'Portfolios', href: '/app/portfolios', icon: FolderTree },
-        { label: 'Organizations', href: '/app/organizations', icon: Building },
-      ],
-    },
-    {
-      title: 'Residents & Households',
-      items: [
-        { label: 'Residents Roster', href: '/app/organizations', icon: Users },
-        { label: 'Households', href: '/app/organizations', icon: Home },
-        { label: 'Service Complaints', href: '/app/resident/complaints', icon: LifeBuoy },
-      ],
-    },
-    {
-      title: 'Operations & Maintenance',
-      items: [
-        { label: 'Helpdesk Tickets', href: '/app/helpdesk/tickets', icon: LifeBuoy },
-        { label: 'Work Orders', href: '/app/facility/work-orders', icon: Wrench },
-        { label: 'Preventive Maintenance', href: '/app/facility/maintenance-plans', icon: CalendarDays },
-        { label: 'Physical Assets', href: '/app/assets', icon: Cpu },
-        { label: 'Inventory & Spares', href: '/app/inventory/balances', icon: Boxes },
-        { label: 'Club Amenities', href: '/app/amenities', icon: Calendar },
-        { label: 'Parking Bays', href: '/app/parking/slots', icon: Car },
-        { label: 'Workforce Roster', href: '/app/workforce/workers', icon: HardHat },
-      ],
-    },
-    {
-      title: 'Security & Gate',
-      items: [
-        { label: 'Gate Console', href: '/app/security/gate-app', icon: ScanLine },
-        { label: 'Visitor Passes', href: '/app/security/visitors', icon: Shield },
-        { label: 'Active On-Premise', href: '/app/security/active', icon: UserCheck },
-        { label: 'Security Watchlist', href: '/app/security/watchlist', icon: AlertTriangle },
-      ],
-    },
-    {
-      title: 'Financial Core ERP',
-      items: [
-        { label: 'Financial Overview', href: '/app/finance', icon: DollarSign },
-        { label: 'Chart of Accounts', href: '/app/finance/accounts', icon: CreditCard },
-        { label: 'Journal Vouchers', href: '/app/finance/journals', icon: Receipt },
-        { label: 'General Ledger', href: '/app/finance/ledger', icon: FileText },
-        { label: 'Trial Balance', href: '/app/finance/trial-balance', icon: CheckCircle2 },
-        { label: 'Maintenance Billing', href: '/app/billing/invoices', icon: Receipt },
-        { label: 'Collections & Receipts', href: '/app/billing/payments', icon: DollarSign },
-        { label: 'Accounts Payable', href: '/app/ap/invoices', icon: CreditCard },
-        { label: 'Bank Treasury', href: '/app/treasury/accounts', icon: PiggyBank },
-        { label: 'Annual Operating Budget', href: '/app/budgeting', icon: DollarSign },
-      ],
-    },
-    {
-      title: 'Procurement & SCM',
-      items: [
-        { label: 'Procurement Pipeline', href: '/app/procurement', icon: ShoppingCart },
-        { label: 'Requisitions (PR)', href: '/app/procurement/requisitions', icon: FileCheck },
-        { label: 'Purchase Orders (PO)', href: '/app/procurement/orders', icon: ShoppingCart },
-        { label: 'Goods Receipts (GRN)', href: '/app/procurement/receipts', icon: Truck },
-        { label: 'Approved Vendors', href: '/app/vendors', icon: Users },
-        { label: 'Capital Capex Projects', href: '/app/projects/list', icon: Award },
-      ],
-    },
-    {
-      title: 'Society Governance',
-      items: [
-        { label: 'Managing Committees', href: '/app/governance/committees', icon: Users },
-        { label: 'Meetings & Quorum', href: '/app/governance/meetings', icon: CalendarDays },
-        { label: 'Secret Ballot Voting', href: '/app/governance/voting', icon: Vote },
-        { label: 'Resolutions & Minutes', href: '/app/governance/resolutions', icon: FileCheck },
-        { label: 'Estate Policies', href: '/app/governance/policies', icon: FileText },
-      ],
-    },
-    {
-      title: 'Utilities & Plant Operations',
-      items: [
-        { label: 'Utility Command', href: '/app/utilities', icon: Zap },
-        { label: 'Meter Registry', href: '/app/utilities/meters', icon: Gauge },
-        { label: 'Meter Readings', href: '/app/utilities/readings', icon: FileText },
-        { label: 'Water & Tankers', href: '/app/utilities/water', icon: Droplets },
-        { label: 'DG Genset Operations', href: '/app/utilities/energy', icon: Flame },
-        { label: 'Outages & Restorations', href: '/app/utilities/outages', icon: AlertTriangle },
-      ],
-    },
-    {
-      title: 'Safety, SOS & Compliance',
-      items: [
-        { label: 'Emergency SOS Console', href: '/app/safety/sos', icon: Siren },
-        { label: 'Statutory Compliance', href: '/app/safety/compliance', icon: FileCheck },
-        { label: 'Hazards & Risk Matrix', href: '/app/safety/hazards-risks', icon: AlertTriangle },
-        { label: 'Incidents & CAPA', href: '/app/safety/incidents', icon: AlertCircle },
-        { label: 'Evacuation Muster', href: '/app/safety/evacuation', icon: Users },
-      ],
-    },
-    {
-      title: 'Analytics & Reporting',
-      items: [
-        { label: 'Executive BI Dashboard', href: '/app/analytics', icon: Gauge },
-        { label: 'Custom Report Builder', href: '/app/analytics/reports', icon: FileSpreadsheetIcon },
-      ],
-    },
-    {
-      title: 'System Administration',
-      items: [
-        { label: 'User Directory', href: '/app/users', icon: Users },
-        { label: 'Roles & Permissions', href: '/app/roles', icon: Shield },
-        { label: 'Immutable Audit Trail', href: '/app/audit', icon: FileText },
-        { label: 'Notifications Center', href: '/app/notifications', icon: Bell },
-        { label: 'Notification Templates', href: '/app/notifications/templates', icon: Bell },
-        { label: 'Document Library', href: '/app/documents', icon: FileText },
-        { label: 'Platform Settings', href: '/app/settings', icon: Award },
-      ],
-    },
-  ];
+  const allNavGroups = React.useMemo<NavGroup[]>(
+    () => [
+      {
+        title: 'Overview',
+        items: [
+          { label: 'Command Center', href: '/app', icon: LayoutDashboard },
+          { label: 'Unified Search', href: '/app/search', icon: Search },
+        ],
+      },
+      {
+        title: 'Property & Communities',
+        items: [
+          { label: 'Communities Master', href: '/app/organizations', icon: Building2 },
+          { label: 'Portfolios', href: '/app/portfolios', icon: FolderTree },
+          { label: 'Organizations', href: '/app/organizations', icon: Building },
+        ],
+      },
+      {
+        title: 'Residents & Households',
+        items: [
+          { label: 'Residents Roster', href: '/app/organizations', icon: Users },
+          { label: 'Households', href: '/app/organizations', icon: Home },
+          { label: 'Service Complaints', href: '/app/resident/complaints', icon: LifeBuoy },
+        ],
+      },
+      {
+        title: 'Operations & Maintenance',
+        items: [
+          { label: 'Helpdesk Tickets', href: '/app/helpdesk/tickets', icon: LifeBuoy },
+          { label: 'Work Orders', href: '/app/facility/work-orders', icon: Wrench },
+          {
+            label: 'Preventive Maintenance',
+            href: '/app/facility/maintenance-plans',
+            icon: CalendarDays,
+          },
+          { label: 'Physical Assets', href: '/app/assets', icon: Cpu },
+          { label: 'Inventory & Spares', href: '/app/inventory/balances', icon: Boxes },
+          { label: 'Club Amenities', href: '/app/amenities', icon: Calendar },
+          { label: 'Parking Bays', href: '/app/parking/slots', icon: Car },
+          { label: 'Workforce Roster', href: '/app/workforce/workers', icon: HardHat },
+        ],
+      },
+      {
+        title: 'Security & Gate',
+        items: [
+          { label: 'Gate Console', href: '/app/security/gate-app', icon: ScanLine },
+          { label: 'Visitor Passes', href: '/app/security/visitors', icon: Shield },
+          { label: 'Active On-Premise', href: '/app/security/active', icon: UserCheck },
+          { label: 'Security Watchlist', href: '/app/security/watchlist', icon: AlertTriangle },
+        ],
+      },
+      {
+        title: 'Financial Core ERP',
+        items: [
+          { label: 'Financial Overview', href: '/app/finance', icon: DollarSign },
+          { label: 'Chart of Accounts', href: '/app/finance/accounts', icon: CreditCard },
+          { label: 'Journal Vouchers', href: '/app/finance/journals', icon: Receipt },
+          { label: 'General Ledger', href: '/app/finance/ledger', icon: FileText },
+          { label: 'Trial Balance', href: '/app/finance/trial-balance', icon: CheckCircle2 },
+          { label: 'Maintenance Billing', href: '/app/billing/invoices', icon: Receipt },
+          { label: 'Collections & Receipts', href: '/app/billing/payments', icon: DollarSign },
+          { label: 'Accounts Payable', href: '/app/ap/invoices', icon: CreditCard },
+          { label: 'Bank Treasury', href: '/app/treasury/accounts', icon: PiggyBank },
+          { label: 'Annual Operating Budget', href: '/app/budgeting', icon: DollarSign },
+        ],
+      },
+      {
+        title: 'Procurement & SCM',
+        items: [
+          { label: 'Procurement Pipeline', href: '/app/procurement', icon: ShoppingCart },
+          { label: 'Requisitions (PR)', href: '/app/procurement/requisitions', icon: FileCheck },
+          { label: 'Purchase Orders (PO)', href: '/app/procurement/orders', icon: ShoppingCart },
+          { label: 'Goods Receipts (GRN)', href: '/app/procurement/receipts', icon: Truck },
+          { label: 'Approved Vendors', href: '/app/vendors', icon: Users },
+          { label: 'Capital Capex Projects', href: '/app/projects/list', icon: Award },
+        ],
+      },
+      {
+        title: 'Society Governance',
+        items: [
+          { label: 'Managing Committees', href: '/app/governance/committees', icon: Users },
+          { label: 'Meetings & Quorum', href: '/app/governance/meetings', icon: CalendarDays },
+          { label: 'Secret Ballot Voting', href: '/app/governance/voting', icon: Vote },
+          { label: 'Resolutions & Minutes', href: '/app/governance/resolutions', icon: FileCheck },
+          { label: 'Estate Policies', href: '/app/governance/policies', icon: FileText },
+        ],
+      },
+      {
+        title: 'Utilities & Plant Operations',
+        items: [
+          { label: 'Utility Command', href: '/app/utilities', icon: Zap },
+          { label: 'Meter Registry', href: '/app/utilities/meters', icon: Gauge },
+          { label: 'Meter Readings', href: '/app/utilities/readings', icon: FileText },
+          { label: 'Water & Tankers', href: '/app/utilities/water', icon: Droplets },
+          { label: 'DG Genset Operations', href: '/app/utilities/energy', icon: Flame },
+          { label: 'Outages & Restorations', href: '/app/utilities/outages', icon: AlertTriangle },
+        ],
+      },
+      {
+        title: 'Safety, SOS & Compliance',
+        items: [
+          { label: 'Emergency SOS Console', href: '/app/safety/sos', icon: Siren },
+          { label: 'Statutory Compliance', href: '/app/safety/compliance', icon: FileCheck },
+          {
+            label: 'Hazards & Risk Matrix',
+            href: '/app/safety/hazards-risks',
+            icon: AlertTriangle,
+          },
+          { label: 'Incidents & CAPA', href: '/app/safety/incidents', icon: AlertCircle },
+          { label: 'Evacuation Muster', href: '/app/safety/evacuation', icon: Users },
+        ],
+      },
+      {
+        title: 'Analytics & Reporting',
+        items: [
+          { label: 'Executive BI Dashboard', href: '/app/analytics', icon: Gauge },
+          {
+            label: 'Custom Report Builder',
+            href: '/app/analytics/reports',
+            icon: FileSpreadsheetIcon,
+          },
+        ],
+      },
+      {
+        title: 'System Administration',
+        items: [
+          { label: 'User Directory', href: '/app/users', icon: Users },
+          { label: 'Roles & Permissions', href: '/app/roles', icon: Shield },
+          { label: 'Immutable Audit Trail', href: '/app/audit', icon: FileText },
+          { label: 'Notifications Center', href: '/app/notifications', icon: Bell },
+          { label: 'Notification Templates', href: '/app/notifications/templates', icon: Bell },
+          { label: 'Document Library', href: '/app/documents', icon: FileText },
+          { label: 'Platform Settings', href: '/app/settings', icon: Award },
+        ],
+      },
+    ],
+    [],
+  );
 
   // Role-Aware Navigation Filtering
   const filteredNavGroups = React.useMemo(() => {
@@ -378,7 +396,11 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
           items: [
             { label: 'My Assigned Work', href: '/app', icon: LayoutDashboard },
             { label: 'Work Orders Queue', href: '/app/facility/work-orders', icon: Wrench },
-            { label: 'Preventive Maintenance', href: '/app/facility/maintenance-plans', icon: CalendarDays },
+            {
+              label: 'Preventive Maintenance',
+              href: '/app/facility/maintenance-plans',
+              icon: CalendarDays,
+            },
             { label: 'Asset Master', href: '/app/assets', icon: Cpu },
             { label: 'Inventory Spares', href: '/app/inventory/balances', icon: Boxes },
             { label: 'Meter Telemetry', href: '/app/utilities/readings', icon: Gauge },
@@ -389,19 +411,43 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
 
     if (isFinance) {
       return allNavGroups.filter((g) =>
-        ['Overview', 'Financial Core ERP', 'Procurement & SCM', 'Analytics & Reporting'].includes(g.title)
+        ['Overview', 'Financial Core ERP', 'Procurement & SCM', 'Analytics & Reporting'].includes(
+          g.title,
+        ),
       );
     }
 
     if (isSafety) {
       return allNavGroups.filter((g) =>
-        ['Overview', 'Safety, SOS & Compliance', 'Operations & Maintenance', 'Analytics & Reporting'].includes(g.title)
+        [
+          'Overview',
+          'Safety, SOS & Compliance',
+          'Operations & Maintenance',
+          'Analytics & Reporting',
+        ].includes(g.title),
       );
     }
 
     // Default for Platform Admin / Community GM
     return allNavGroups;
   }, [isResident, isGuard, isTech, isFinance, isSafety, allNavGroups]);
+
+  useEffect(() => {
+    const uniqueRoutes = new Set<string>();
+    filteredNavGroups.forEach((group) => {
+      group.items.forEach((item) => uniqueRoutes.add(item.href));
+    });
+
+    uniqueRoutes.forEach((href) => {
+      if (href !== routerPathname) {
+        router.prefetch(href);
+      }
+    });
+  }, [filteredNavGroups, router, routerPathname]);
+
+  const pendingNavItem = pendingPath
+    ? filteredNavGroups.flatMap((group) => group.items).find((item) => item.href === pendingPath)
+    : null;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background text-foreground">
@@ -483,7 +529,9 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
                 }`}
               >
                 <span>Green Valley Heights</span>
-                {activeCommunity === 'Green Valley Heights' && <CheckCircle2 className="h-3.5 w-3.5" />}
+                {activeCommunity === 'Green Valley Heights' && (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                )}
               </button>
               <button
                 onClick={() => {
@@ -498,7 +546,9 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
                 }`}
               >
                 <span>Palm Meadows Villas</span>
-                {activeCommunity === 'Palm Meadows Villas' && <CheckCircle2 className="h-3.5 w-3.5" />}
+                {activeCommunity === 'Palm Meadows Villas' && (
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                )}
               </button>
               <Link
                 href="/app/organizations"
@@ -525,9 +575,7 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
               </div>
               {group.items.map((item, iIdx) => {
                 const isActive =
-                  item.href === '/app'
-                    ? pathname === '/app'
-                    : pathname.startsWith(item.href);
+                  item.href === '/app' ? pathname === '/app' : pathname.startsWith(item.href);
                 const Icon = item.icon;
 
                 return (
@@ -540,7 +588,9 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
                         : 'text-foreground hover:bg-surface-muted'
                     }`}
                   >
-                    <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary-foreground' : 'text-muted'}`} />
+                    <Icon
+                      className={`h-4 w-4 shrink-0 ${isActive ? 'text-primary-foreground' : 'text-muted'}`}
+                    />
                     <span className="truncate">{item.label}</span>
                   </Link>
                 );
@@ -564,7 +614,13 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
                   {user ? user.displayName : 'Administrator'}
                 </div>
                 <div className="text-[10px] text-muted truncate leading-tight mt-0.5">
-                  {isPlatformAdmin ? 'Platform Admin' : isResident ? 'Resident' : isGuard ? 'Security Guard' : 'Staff'}
+                  {isPlatformAdmin
+                    ? 'Platform Admin'
+                    : isResident
+                      ? 'Resident'
+                      : isGuard
+                        ? 'Security Guard'
+                        : 'Staff'}
                 </div>
               </div>
             </Link>
@@ -697,7 +753,9 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
                   </div>
                   <div className="max-h-72 overflow-y-auto divide-y divide-border">
                     {recentNotifications.length === 0 ? (
-                      <div className="p-5 text-center text-xs text-muted">No new notifications.</div>
+                      <div className="p-5 text-center text-xs text-muted">
+                        No new notifications.
+                      </div>
                     ) : (
                       recentNotifications.map((notif) => (
                         <div
@@ -733,7 +791,36 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
         </header>
 
         {/* Main Workspace Content View */}
-        <main className="flex-1 overflow-y-auto p-6 min-h-0 bg-background">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6 min-h-0 bg-background">
+          {isRoutePending ? (
+            <div className="space-y-5 animate-pulse">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="h-3 w-28 rounded bg-surface-muted" />
+                  <div className="mt-3 h-8 w-72 max-w-full rounded bg-surface-muted" />
+                </div>
+                <div className="h-9 w-28 rounded-lg bg-surface-muted" />
+              </div>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="h-24 rounded-lg border border-border bg-surface" />
+                <div className="h-24 rounded-lg border border-border bg-surface" />
+                <div className="h-24 rounded-lg border border-border bg-surface" />
+              </div>
+              <div className="rounded-lg border border-border bg-surface p-4">
+                <div className="mb-4 h-5 w-48 rounded bg-surface-muted" />
+                <div className="space-y-3">
+                  <div className="h-10 rounded bg-surface-muted" />
+                  <div className="h-10 rounded bg-surface-muted" />
+                  <div className="h-10 rounded bg-surface-muted" />
+                  <div className="h-10 rounded bg-surface-muted" />
+                </div>
+              </div>
+              <span className="sr-only">Loading {pendingNavItem?.label ?? 'page'}</span>
+            </div>
+          ) : (
+            children
+          )}
+        </main>
       </div>
     </div>
   );
