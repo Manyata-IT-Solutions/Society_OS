@@ -1,0 +1,14 @@
+services:
+  api:
+    volumes:
+      - ./packages:/app/packages
+      - ./apps/api/src:/app/apps/api/src
+      - /app/node_modules
+
+  admin-web:
+    volumes:
+      - ./packages:/app/packages
+      - ./apps/admin-web/src:/app/apps/admin-web/src
+      - ./apps/admin-web/public:/app/apps/admin-web/public
+      - /app/node_modules
+      - /app/apps/admin-web/.next

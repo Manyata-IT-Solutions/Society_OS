@@ -1,0 +1,59 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, Typecheck, Test & Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres_dev_password@localhost:5432/community_os_dev?schema=public
+      REDIS_URL: redis://:redis_dev_password@localhost:6379/0
+      JWT_ACCESS_SECRET: github_actions_ci_jwt_access_secret_min32chars!
+      JWT_REFRESH_SECRET: github_actions_ci_jwt_refresh_secret_min32chars!
+      PORT: 4000
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9.15.4
+          run_install: false
+
+      - name: Setup Node.js (LTS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Database Client
+        run: pnpm db:generate
+
+      - name: Run Linting
+        run: pnpm lint
+
+      - name: Run Strict Typechecks
+        run: pnpm typecheck
+
+      - name: Run Test Suites
+        run: pnpm test
+
+      - name: Run Production Build
+        run: pnpm build

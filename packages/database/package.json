@@ -1,0 +1,43 @@
+{
+  "name": "@community-os/database",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx src/seed.ts",
+    "demo:seed": "tsx src/seed.ts && tsx src/full-demo-seed-entry.ts",
+    "demo:reseed": "tsx src/seed.ts && tsx src/full-demo-seed-entry.ts",
+    "demo:verify": "tsx src/demo-integrity-check.ts",
+    "demo:reset": "prisma migrate reset --force && tsx src/seed.ts && tsx src/full-demo-seed-entry.ts",
+    "perf:seed": "tsx src/perf-seed.ts",
+    "perf:reset": "tsx src/perf-seed.ts --reset"
+  },
+  "dependencies": {
+    "@community-os/auth": "workspace:*",
+    "@community-os/types": "workspace:*",
+    "@prisma/client": "^6.4.1",
+    "bcryptjs": "^3.0.3"
+  },
+  "devDependencies": {
+    "@community-os/eslint-config": "workspace:*",
+    "@community-os/tsconfig": "workspace:*",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/node": "^22.13.9",
+    "eslint": "^8.57.0",
+    "prisma": "^6.4.1",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "name": "community-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Community OS - Enterprise Residential Community ERP & Society Management Platform",
+  "license": "UNLICENSED",
+  "author": "Community OS Core Platform Team",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@10.34.4",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/client",
+      "@prisma/engines",
+      "@scarf/scarf",
+      "esbuild",
+      "prisma",
+      "unrs-resolver"
+    ],
+    "overrides": {
+      "deepmerge-ts": "8.0.2",
+      "file-type": "21.3.2",
+      "glob": "10.5.0",
+      "js-yaml": "4.3.1",
+      "lodash": "4.18.1",
+      "multer": "2.2.0",
+      "picomatch": "4.0.4",
+      "postcss": "8.5.23",
+      "qs": "6.16.0",
+      "tmp": "0.2.7"
+    }
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "db:generate": "pnpm --filter @community-os/database db:generate",
+    "db:migrate": "pnpm --filter @community-os/database db:migrate",
+    "db:studio": "pnpm --filter @community-os/database db:studio",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "clean": "turbo run clean && rimraf node_modules",
+    "demo:seed": "pnpm --filter @community-os/database demo:seed",
+    "demo:reset": "pnpm --filter @community-os/database demo:reset",
+    "demo:reseed": "pnpm --filter @community-os/database demo:reseed",
+    "perf:seed": "pnpm --filter @community-os/database perf:seed",
+    "perf:reset": "pnpm --filter @community-os/database perf:reset",
+    "perf:smoke": "pnpm --filter @community-os/api exec jest --config ./test/jest-e2e.json test/enterprise-performance.e2e-spec.ts --runInBand --forceExit",
+    "perf:load": "pnpm --filter @community-os/api exec jest --config ./test/jest-e2e.json test/enterprise-performance.e2e-spec.ts --runInBand --forceExit",
+    "perf:stress": "pnpm --filter @community-os/api exec jest --config ./test/jest-e2e.json test/enterprise-performance.e2e-spec.ts --runInBand --forceExit",
+    "perf:report": "node -e \"console.log('Phase 27 Performance & Reliability reports available in docs/performance/')\"",
+    "docker:dev": "docker compose -f docker-compose.yml -f docker-compose.dev.yml up",
+    "docker:seed": "docker compose exec api pnpm demo:seed"
+  },
+  "devDependencies": {
+    "@turbo/gen": "^2.4.4",
+    "@typescript-eslint/eslint-plugin": "^8.69.0",
+    "@typescript-eslint/parser": "^8.69.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2"
+  }
+}

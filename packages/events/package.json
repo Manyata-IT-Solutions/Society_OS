@@ -1,0 +1,25 @@
+{
+  "name": "@community-os/events",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@community-os/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@community-os/eslint-config": "workspace:*",
+    "@community-os/tsconfig": "workspace:*",
+    "@types/node": "^22.13.9",
+    "eslint": "^8.57.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.2"
+  }
+}

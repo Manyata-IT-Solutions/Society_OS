@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+FROM node:20-alpine AS base
+
+RUN corepack enable && corepack prepare pnpm@10.34.4 --activate
+
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat
+
+# Copy workspace configuration and packages
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
+COPY packages/ ./packages/
+COPY apps/admin-web/ ./apps/admin-web/
+
+# Install all dependencies
+RUN pnpm install --frozen-lockfile
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV NODE_ENV=development
+
+CMD ["pnpm", "--filter", "@community-os/admin-web", "dev"]
