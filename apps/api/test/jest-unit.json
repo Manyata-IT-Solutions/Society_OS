@@ -1,0 +1,15 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": "../src",
+  "testRegex": ".*\\.spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^(\\./.*)\\.js$": "$1",
+    "^(\\.\\./.*)\\.js$": "$1"
+  },
+  "collectCoverageFrom": ["**/*.(t|j)s", "!**/*.module.(t|j)s", "!main.ts"],
+  "coverageDirectory": "../coverage",
+  "testEnvironment": "node"
+}

@@ -1,0 +1,117 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: community_os_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres_dev_password}
+      POSTGRES_DB: ${DATABASE_NAME:-community_os_dev}
+      TZ: UTC
+      PGTZ: UTC
+    ports:
+      - '${DATABASE_PORT:-5434}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${DATABASE_USER:-postgres} -d ${DATABASE_NAME:-community_os_dev}',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - community_os_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: community_os_redis
+    restart: unless-stopped
+    command:
+      [
+        'redis-server',
+        '--requirepass',
+        '${REDIS_PASSWORD:-redis_dev_password}',
+        '--appendonly',
+        'yes',
+      ]
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD:-redis_dev_password}', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - community_os_network
+
+  api:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.api
+    container_name: community_os_api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DATABASE_URL: postgresql://${DATABASE_USER:-postgres}:${DATABASE_PASSWORD:-postgres_dev_password}@postgres:5432/${DATABASE_NAME:-community_os_dev}?schema=public&connection_limit=20&pool_timeout=10
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redis_dev_password}@redis:6379/0
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-dev_jwt_access_secret_change_in_production_min32chars!}
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev_jwt_refresh_secret_change_in_production_min32chars!}
+      JWT_REFRESH_EXPIRES_IN: 7d
+      CORS_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+      LOG_LEVEL: debug
+      LOG_PRETTY: 'true'
+      SWAGGER_ENABLED: 'true'
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - community_os_network
+
+  admin-web:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/Dockerfile.web
+    container_name: community_os_admin_web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      WATCHPACK_POLLING: 'true'
+      NEXT_PUBLIC_API_URL: http://localhost:4000/api/v1
+      NEXT_PUBLIC_APP_NAME: 'Community OS'
+      NEXT_PUBLIC_APP_VERSION: '0.1.0'
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./apps/admin-web/src:/app/apps/admin-web/src
+      - ./apps/admin-web/public:/app/apps/admin-web/public
+    depends_on:
+      - api
+    networks:
+      - community_os_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  community_os_network:
+    driver: bridge

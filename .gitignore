@@ -1,0 +1,45 @@
+# Dependencies
+node_modules
+.pnp
+.pnpm-store
+.pnp.js
+
+# Build Outputs
+dist
+build
+.next
+out
+.turbo
+*.tsbuildinfo
+
+# Testing & Coverage
+coverage
+.nyc_output
+
+# Environment files
+.env
+.env.*
+.env.example
+.env.production.example
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Docker volume data
+postgres_data
+redis_data

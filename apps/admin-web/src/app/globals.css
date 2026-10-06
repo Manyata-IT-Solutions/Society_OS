@@ -1,0 +1,133 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-muted: #f1f5f9;
+  
+  --border: #e2e8f0;
+  --border-muted: #f1f5f9;
+  
+  --primary: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-foreground: #ffffff;
+  
+  --muted: #64748b;
+  --muted-foreground: #94a3b8;
+  
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --background: #090d16;
+    --foreground: #f8fafc;
+    
+    --surface: #111827;
+    --surface-elevated: #1f2937;
+    --surface-muted: #1e293b;
+    
+    --border: #1f2937;
+    --border-muted: #111827;
+    
+    --primary: #38bdf8;
+    --primary-hover: #0ea5e9;
+    --primary-foreground: #090d16;
+    
+    --muted: #94a3b8;
+    --muted-foreground: #64748b;
+    
+    --success: #34d399;
+    --success-foreground: #090d16;
+    
+    --destructive: #f87171;
+    --destructive-foreground: #090d16;
+  }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #090d16;
+  --foreground: #f8fafc;
+
+  --surface: #111827;
+  --surface-elevated: #1f2937;
+  --surface-muted: #1e293b;
+
+  --border: #1f2937;
+  --border-muted: #111827;
+
+  --primary: #38bdf8;
+  --primary-hover: #0ea5e9;
+  --primary-foreground: #090d16;
+
+  --muted: #94a3b8;
+  --muted-foreground: #64748b;
+
+  --success: #34d399;
+  --success-foreground: #090d16;
+
+  --destructive: #f87171;
+  --destructive-foreground: #090d16;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessibility Focus Ring Styles */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Hide scrollbar while preserving scroll functionality */
+.no-scrollbar::-webkit-scrollbar,
+nav.no-scrollbar::-webkit-scrollbar,
+aside nav::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+.no-scrollbar,
+nav.no-scrollbar,
+aside nav {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* Global Modern Subtle Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.45);
+}

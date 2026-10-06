@@ -1,0 +1,83 @@
+# syntax=docker/dockerfile:1
+
+# ==============================================================================
+# Stage 1: Build Dependencies & Compile Workspace (builder)
+# ==============================================================================
+FROM node:20-alpine AS builder
+
+RUN corepack enable && corepack prepare pnpm@10.34.4 --activate
+
+WORKDIR /app
+
+# Install native libraries required by Prisma engine on Alpine (ARM64 & x86_64)
+RUN apk add --no-cache libc6-compat openssl
+
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Copy workspace configuration
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
+
+# Copy packages and api application
+COPY packages/ ./packages/
+COPY apps/api/ ./apps/api/
+
+# Install dependencies using frozen lockfile
+RUN pnpm install --frozen-lockfile
+
+# Generate Prisma Client
+RUN pnpm --filter @community-os/database db:generate
+
+# Compile shared workspace packages in dependency order
+RUN pnpm --filter @community-os/types build
+RUN pnpm --filter @community-os/validation build
+RUN pnpm --filter @community-os/auth build
+RUN pnpm --filter @community-os/contracts build
+RUN pnpm --filter @community-os/events build
+RUN pnpm --filter @community-os/logger build
+RUN pnpm --filter @community-os/observability build
+RUN pnpm --filter @community-os/config build
+RUN pnpm --filter @community-os/database build
+
+# Compile NestJS API
+RUN pnpm --filter @community-os/api build
+
+# ==============================================================================
+# Stage 2: Lightweight Production Runtime (runner)
+# ==============================================================================
+FROM node:20-alpine AS runner
+
+RUN corepack enable && corepack prepare pnpm@10.34.4 --activate
+
+WORKDIR /app
+
+# Ensure runtime dependencies for Prisma engines on Alpine ARM64/AMD64
+RUN apk add --no-cache libc6-compat openssl
+
+ENV NODE_ENV=production
+ENV PORT=4000
+
+# Copy workspace manifests
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/turbo.json ./turbo.json
+
+# Copy installed node_modules & compiled packages
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages ./packages
+
+# Copy compiled API app and local dependency symlinks
+COPY --from=builder /app/apps/api/package.json ./apps/api/package.json
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/node_modules ./apps/api/node_modules
+
+# Security: run as non-root node user
+RUN chown -R node:node /app
+
+USER node
+
+EXPOSE 4000
+
+WORKDIR /app/apps/api
+
+CMD ["node", "dist/main.js"]
